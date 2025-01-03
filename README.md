@@ -1,21 +1,5 @@
 # Deploy
 
-Check that you have cloned [signoz/signoz](https://github.com/signoz/signoz)
-and currently are in `signoz/deploy` folder.
-
-## Docker
-
-If you don't have docker set up, please follow [this guide](https://docs.docker.com/engine/install/)
-to set up docker before proceeding with the next steps.
-
-### Using Install Script
-
-Now run the following command to install:
-
-```sh
-./install.sh
-```
-
 ### Using Docker Compose
 
 If you don't have docker-compose set up, please follow [this guide](https://docs.docker.com/compose/install/)
