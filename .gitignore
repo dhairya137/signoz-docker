@@ -1,0 +1,5 @@
+docker/clickhouse-setup/data/clickhouse/*
+docker/clickhouse-setup/data/signoz/*
+docker/clickhouse-setup/data/zookeeper-1/*
+docker/clickhouse-setup/data/alertmanager/*
+__pycache__
