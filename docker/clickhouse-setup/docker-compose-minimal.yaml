@@ -3,8 +3,8 @@ x-clickhouse-defaults: &clickhouse-defaults
   # addding non LTS version due to this fix https://github.com/ClickHouse/ClickHouse/commit/32caf8716352f45c1b617274c7508c86b7d1afab
   image: clickhouse/clickhouse-server:24.1.2-alpine
   tty: true
-  # depends_on:
-  #   - zookeeper-1
+  depends_on:
+    - zookeeper-1
   logging:
     options:
       max-size: 50m
@@ -29,22 +29,22 @@ x-db-depend: &db-depend
       condition: service_completed_successfully
 
 services:
-  # zookeeper-1:
-  #   image: bitnami/zookeeper:3.7.1
-  #   container_name: signoz-zookeeper-1
-  #   hostname: zookeeper-1
-  #   user: root
-  #   ports:
-  #     - "2181:2181"
-  #     - "2888:2888"
-  #     - "3888:3888"
-  #   volumes:
-  #     - ./data/zookeeper-1:/bitnami/zookeeper
-  #   environment:
-  #     - ZOO_SERVER_ID=1
-  #     # - ZOO_SERVERS=0.0.0.0:2888:3888,zookeeper-2:2888:3888,zookeeper-3:2888:3888
-  #     - ALLOW_ANONYMOUS_LOGIN=yes
-  #     - ZOO_AUTOPURGE_INTERVAL=1
+  zookeeper-1:
+    image: bitnami/zookeeper:3.7.1
+    container_name: signoz-zookeeper-1
+    hostname: zookeeper-1
+    user: root
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+    volumes:
+      - ./data/zookeeper-1:/bitnami/zookeeper
+    environment:
+      - ZOO_SERVER_ID=1
+      # - ZOO_SERVERS=0.0.0.0:2888:3888,zookeeper-2:2888:3888,zookeeper-3:2888:3888
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_AUTOPURGE_INTERVAL=1
 
   clickhouse:
     !!merge <<: *clickhouse-defaults

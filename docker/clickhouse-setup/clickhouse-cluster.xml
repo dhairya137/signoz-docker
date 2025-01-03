@@ -20,7 +20,6 @@
         </node> -->
     </zookeeper>
 
-
     <!-- Configuration of clusters that could be used in Distributed tables.
          https://clickhouse.com/docs/en/operations/table_engines/distributed/
       -->
