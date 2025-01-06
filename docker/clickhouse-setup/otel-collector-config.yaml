@@ -1,5 +1,5 @@
 receivers:
-  # tcplog/docker: 
+  # tcplog/docker:
   #   listen_address: "0.0.0.0:2255"
   #   operators:
   #     - type: regex_parser
@@ -35,16 +35,31 @@ receivers:
       #   endpoint: 0.0.0.0:6831
       # thrift_binary:
       #   endpoint: 0.0.0.0:6832
+  #hostmetrics:
+  #  collection_interval: 30s
+  #  root_path: /hostfs
+  #  scrapers:
+  #    cpu: {}
+  #    load: {}
+  #    memory: {}
+  #    disk: {}
+  #    filesystem: {}
+  #    network: {}
   hostmetrics:
-    collection_interval: 30s
-    root_path: /hostfs
+    collection_interval: 60s
     scrapers:
       cpu: {}
-      load: {}
-      memory: {}
       disk: {}
+      load: {}
       filesystem: {}
+      memory: {}
       network: {}
+      paging: {}
+      process:
+        mute_process_name_error: true
+        mute_process_exe_error: true
+        mute_process_io_error: true
+      processes: {}
   prometheus:
     config:
       global:
@@ -103,11 +118,17 @@ processors:
   #   endpoint: 0.0.0.0:1777
 
 exporters:
+  #otlp:
+  #  endpoint: "signoz-otel-collector:4317"  # Using Docker service name
+  #  # endpoint: "localhost:4317"
+  #  tls:
+  #    insecure: true
   otlp:
-    endpoint: "signoz-otel-collector:4317"  # Using Docker service name
-    # endpoint: "localhost:4317"
+    endpoint: "ingest.in.signoz.cloud:443"
     tls:
-      insecure: true
+      insecure: false
+    headers:
+      "signoz-ingestion-key": "6b57bcc0-b17a-4c48-b692-c1d14ccda04c"
   clickhousetraces:
     datasource: tcp://default:default123@clickhouse:9000/signoz_traces
     low_cardinal_exception_grouping: ${env:LOW_CARDINAL_EXCEPTION_GROUPING}
@@ -143,12 +164,12 @@ service:
   #     receivers: [otlp]
   #     processors: [batch]
   #     exporters: [otlp]
-    
+
   #   metrics:
   #     receivers: [otlp]
   #     processors: [batch]
   #     exporters: [otlp]
-    
+
   #   metrics/hostmetrics:
   #     receivers: [hostmetrics]
   #     processors: [resourcedetection, batch]
@@ -157,15 +178,15 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [clickhousetraces]
+      exporters: [clickhousetraces, otlp]
     metrics:
-      receivers: [otlp]
+      receivers: [otlp, hostmetrics]
       processors: [batch]
-      exporters: [clickhousemetricswrite, clickhousemetricswritev2]
+      exporters: [clickhousemetricswrite, clickhousemetricswritev2, otlp]
     metrics/hostmetrics:
       receivers: [hostmetrics]
       processors: [resourcedetection, batch]
-      exporters: [clickhousemetricswrite, clickhousemetricswritev2]
+      exporters: [clickhousemetricswrite, clickhousemetricswritev2, otlp]
     metrics/prometheus:
       receivers: [prometheus]
       processors: [batch]
@@ -173,4 +194,4 @@ service:
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [clickhouselogsexporter]
+      exporters: [clickhouselogsexporter, otlp]
