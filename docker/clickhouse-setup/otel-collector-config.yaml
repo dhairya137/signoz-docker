@@ -102,31 +102,29 @@ processors:
   # pprof:
   #   endpoint: 0.0.0.0:1777
 
-# exporters:
-  # clickhousetraces:
-  #   datasource: tcp://default:default123@clickhouse:9000/signoz_traces
-  #   low_cardinal_exception_grouping: ${env:LOW_CARDINAL_EXCEPTION_GROUPING}
-  #   use_new_schema: true
-  # clickhousemetricswrite:
-  #   endpoint: tcp://default:default123@clickhouse:9000/signoz_metrics
-  #   resource_to_telemetry_conversion:
-  #     enabled: true
-  # clickhousemetricswrite/prometheus:
-  #   endpoint: tcp://default:default123@clickhouse:9000/signoz_metrics
-  # clickhousemetricswritev2:
-  #   dsn: tcp://default:default123@clickhouse:9000/signoz_metrics
-  # clickhouselogsexporter:
-  #   dsn: tcp://default:default123@clickhouse:9000/signoz_logs
-  #   timeout: 10s
-  #   use_new_schema: true
-  # logging: {}
-
 exporters:
   otlp:
-    # endpoint: "signoz-otel-collector:4317"  # Using Docker service name
-    endpoint: "localhost:4317"
+    endpoint: "signoz-otel-collector:4317"  # Using Docker service name
+    # endpoint: "localhost:4317"
     tls:
       insecure: true
+  clickhousetraces:
+    datasource: tcp://default:default123@clickhouse:9000/signoz_traces
+    low_cardinal_exception_grouping: ${env:LOW_CARDINAL_EXCEPTION_GROUPING}
+    use_new_schema: true
+  clickhousemetricswrite:
+    endpoint: tcp://default:default123@clickhouse:9000/signoz_metrics
+    resource_to_telemetry_conversion:
+      enabled: true
+  clickhousemetricswrite/prometheus:
+    endpoint: tcp://default:default123@clickhouse:9000/signoz_metrics
+  clickhousemetricswritev2:
+    dsn: tcp://default:default123@clickhouse:9000/signoz_metrics
+  clickhouselogsexporter:
+    dsn: tcp://default:default123@clickhouse:9000/signoz_logs
+    timeout: 10s
+    use_new_schema: true
+  logging: {}
 
 service:
   telemetry:
@@ -140,39 +138,39 @@ service:
   #   - zpages
   #   - pprof
 
+  # pipelines:
+  #   traces:
+  #     receivers: [otlp]
+  #     processors: [batch]
+  #     exporters: [otlp]
+    
+  #   metrics:
+  #     receivers: [otlp]
+  #     processors: [batch]
+  #     exporters: [otlp]
+    
+  #   metrics/hostmetrics:
+  #     receivers: [hostmetrics]
+  #     processors: [resourcedetection, batch]
+  #     exporters: [otlp]
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp]
-    
+      exporters: [clickhousetraces]
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp]
-    
+      exporters: [clickhousemetricswrite, clickhousemetricswritev2]
     metrics/hostmetrics:
       receivers: [hostmetrics]
       processors: [resourcedetection, batch]
-      exporters: [otlp]
-  # pipelines:
-    # traces:
-    #   receivers: [jaeger, otlp]
-    #   processors: [signozspanmetrics/delta, batch]
-    #   exporters: [clickhousetraces]
-    # metrics:
-    #   receivers: [otlp]
-    #   processors: [batch]
-    #   exporters: [clickhousemetricswrite, clickhousemetricswritev2]
-    # metrics/hostmetrics:
-    #   receivers: [hostmetrics]
-    #   processors: [resourcedetection, batch]
-    #   exporters: [clickhousemetricswrite, clickhousemetricswritev2]
-    # metrics/prometheus:
-    #   receivers: [prometheus]
-    #   processors: [batch]
-    #   exporters: [clickhousemetricswrite/prometheus, clickhousemetricswritev2]
-    # logs:
-    #   receivers: [otlp, tcplog/docker]
-    #   processors: [batch]
-    #   exporters: [clickhouselogsexporter]
+      exporters: [clickhousemetricswrite, clickhousemetricswritev2]
+    metrics/prometheus:
+      receivers: [prometheus]
+      processors: [batch]
+      exporters: [clickhousemetricswrite/prometheus, clickhousemetricswritev2]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [clickhouselogsexporter]
